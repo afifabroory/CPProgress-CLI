@@ -8,7 +8,7 @@ def getData(path='/'):
     return requests.get(DATABASE_URL + path + '.json').json()
 
 def postData(path='/', data={}):
-    requests.put(DATABASE_URL + path + '.json?auth=', data=json.dumps(data))
+    requests.put(DATABASE_URL + path + '.json?auth=' + DATABASE_TOKEN, data=json.dumps(data))
 
 def isIntegerInput(input):
     try:
@@ -21,9 +21,11 @@ def main():
     cancle = False
     
     submission_id = int(getData('/lastID'))+1
-    print("Submission ID\t\t: ", submission_id, end="\n\n")
+    print("Submission ID\t\t: ", submission_id+1, end="\n\n")
     
     problem_id = ''
+    problem_link = ''
+    postProblem = False
     while (not cancle):
         problem_id = input("Problem ID\t\t: ").upper()
         if (problem_id == 'q'): 
@@ -44,7 +46,8 @@ def main():
                 elif (problem_link == ''):
                     print("Problem URL cannot be empty")
                     continue
-                else: 
+                else:
+                    postProblem = True
                     break
             break
         else:
@@ -105,6 +108,8 @@ def main():
         postData(path='/lastID', data=submission_id)
         postData(path='/submission/' + str(submission_id), data=data)
         postData(path='/submissionStatus/overall/' + submission_status, data=submission_count)
+
+        if (postProblem): postData(path='/problem/'+problem_id, data=problem_link)
     else:
         print('Cancled')
 
